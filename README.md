@@ -9,5 +9,8 @@ cause i needed that many times for virtual machine + it will be usful for my DE<
 <pre>
   cryptsetup
 </pre>
+**Discord server for requests/reporting bugs** - <a href="https://discord.gg/6PP5uqha">Discord</a> <br><br>
+**Download** - <a href="https://github.com/banekondic1996/Elve-Magic-Encrypt/releases/tag/1.0">Link</a> <br><br>
+
 <img width="1029" height="912" alt="image" src="https://github.com/user-attachments/assets/0a73ef25-bab4-429c-84d9-66977d399e67" />
 
