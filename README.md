@@ -1,4 +1,4 @@
-# <img width="82" height="auto" alt="Elve System Monitor" src="magic_encrypt.png" />  Elve Magic Encrypt
+# <img width="82" height="auto" alt="Elve System Monitor" src="magic_encrypt2.png" />  Elve Magic Encrypt
 Just vibe coded virtual image encryption/mounting app for my Linux DE (beta)<br> <br>
 I got tired of creating .img images using terminal, especially dynamic ones.<br>
 Then i use ZuluCrypt to mount the images, but ZuluCrypt won't mount images without password. <br>
