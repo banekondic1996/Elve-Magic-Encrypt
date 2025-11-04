@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 700px;
+            max-width: 750px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -51,17 +51,19 @@
             display: flex;
             background: #f7f7f7;
             border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
         }
 
         .tab {
             flex: 1;
-            padding: 14px;
+            padding: 14px 10px;
             text-align: center;
             cursor: pointer;
             font-weight: 500;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.3s;
             border-bottom: 3px solid transparent;
+            white-space: nowrap;
         }
 
         .tab:hover {
@@ -103,7 +105,8 @@
 
         input[type="text"],
         input[type="password"],
-        input[type="number"] {
+        input[type="number"],
+        select {
             width: 100%;
             padding: 10px 12px;
             border: 2px solid #e0e0e0;
@@ -112,9 +115,15 @@
             transition: all 0.3s;
         }
 
+        select {
+            cursor: pointer;
+            background: white;
+        }
+
         input[type="text"]:focus,
         input[type="password"]:focus,
-        input[type="number"]:focus {
+        input[type="number"]:focus,
+        select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -225,6 +234,7 @@
             display: flex;
             gap: 15px;
             margin: 10px 0;
+            flex-wrap: wrap;
         }
 
         .radio-option {
@@ -319,6 +329,7 @@
         .file-actions {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .btn-small {
@@ -340,7 +351,12 @@
             color: white;
         }
 
-        .btn-mount:hover, .btn-unmount:hover {
+        .btn-convert {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .btn-mount:hover, .btn-unmount:hover, .btn-convert:hover {
             transform: scale(1.05);
         }
 
@@ -380,22 +396,66 @@
             font-size: 16px;
             margin-bottom: 12px;
         }
+
+        .partition-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .partition-item {
+            padding: 8px;
+            background: #f7f7f7;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .partition-item:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .partition-item.selected {
+            background: #667eea;
+            color: white;
+        }
+        .disabled-tab{
+            background: #dfdfdf !important;
+            border: none !important;
+            color: gray !important;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Elve Magic Encrypt</h1>
+            <h1>🔒 Elve Magic Encrypt</h1>
             <p>Create, mount, and manage encrypted disk images</p>
         </div>
 
         <div class="tabs">
-            <div class="tab active" data-tab="create">Create Image</div>
-            <div class="tab" data-tab="mount">Mount Image</div>
+            <div class="tab active" data-tab="create">Create</div>
+            <div class="tab" data-tab="mount">Mount</div>
             <div class="tab" data-tab="manage">Manage</div>
+            <div class="tab" data-tab="convert">Convert</div>
+            <div class="tab" data-tab="vmdk">Link</div>
+            <!-- <div class="tab" data-tab="bitlocker">BitLocker</div> -->
+            
         </div>
 
         <div id="create-tab" class="tab-content active">
+            <div class="form-group">
+                <label>Image Type</label>
+                <select id="imageType">
+                    <option value="img">IMG (Disk Image)</option>
+                    <option value="vmdk">VMDK (Virtual Disk)</option>
+                </select>
+            </div>
+
             <div class="form-group">
                 <label>Image Name</label>
                 <input type="text" id="imageName" placeholder="my-secure-disk" />
@@ -456,9 +516,17 @@
 
         <div id="mount-tab" class="tab-content">
             <div class="form-group">
-                <label>Select Image File</label>
+                <label>File Type</label>
+                <select id="mountFileType">
+                    <option value="img">IMG (Disk Image)</option>
+                    <option value="iso">ISO (CD/DVD Image)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Select File</label>
                 <div class="input-row">
-                    <input type="text" id="mountImagePath" placeholder="Select .img file" readonly />
+                    <input type="text" id="mountImagePath" placeholder="Select file" readonly />
                     <button class="btn btn-secondary" onclick="selectImageFile()" style="width: auto; padding: 10px 16px;">Browse</button>
                 </div>
             </div>
@@ -487,6 +555,79 @@
             <div id="mountStatus" class="status"></div>
         </div>
 
+        <div id="convert-tab" class="tab-content">
+            <h3>Convert IMG to VMDK</h3>
+
+            <div class="form-group">
+                <label>Source IMG File</label>
+                <div class="input-row">
+                    <input type="text" id="convertSourcePath" placeholder="Select .img file" readonly />
+                    <button class="btn btn-secondary" onclick="selectConvertSource()" style="width: auto; padding: 10px 16px;">Browse</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Destination VMDK File</label>
+                <input type="text" id="convertDestPath" placeholder="/path/to/output.vmdk" />
+            </div>
+
+            <button class="btn btn-primary" onclick="convertToVMDK()">Convert to VMDK</button>
+
+            <div id="convertStatus" class="status"></div>
+        </div>
+
+        <div id="vmdk-tab" class="tab-content">
+            <h3>Create VMDK Link to Physical Partition</h3>
+
+            <div class="form-group">
+                <label>Select Physical Partition</label>
+                <div class="partition-list" id="partitionList">
+                    <p style="text-align: center; color: #777;">Loading partitions...</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Output VMDK File</label>
+                <div class="input-row">
+                    <input type="text" id="vmdkOutputPath" placeholder="/path/to/partition-link.vmdk" />
+                    <button class="btn btn-secondary" onclick="selectVMDKOutput()" style="width: auto; padding: 10px 16px;">Browse</button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="createPartitionVMDK()">Create Partition VMDK</button>
+
+            <div id="vmdkStatus" class="status"></div>
+        </div>
+
+        <div id="bitlocker-tab" class="tab-content">
+            <h3>Mount BitLocker Encrypted VHD</h3>
+
+            <div class="form-group">
+                <label>VHD File</label>
+                <div class="input-row">
+                    <input type="text" id="bitlockerVHDPath" placeholder="Select .vhd file" readonly />
+                    <button class="btn btn-secondary" onclick="selectBitlockerVHD()" style="width: auto; padding: 10px 16px;">Browse</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>BitLocker Password</label>
+                <input type="password" id="bitlockerPassword" placeholder="Enter BitLocker password" />
+            </div>
+
+            <div class="form-group">
+                <label>Mount Point</label>
+                <div class="input-row">
+                    <input type="text" id="bitlockerMountPoint" placeholder="/mnt/bitlocker" />
+                    <button class="btn btn-secondary" onclick="selectBitlockerMount()" style="width: auto; padding: 10px 16px;">Browse</button>
+                </div>
+            </div>
+
+            <button class="btn btn-success" onclick="mountBitlocker()">Mount</button>
+
+            <div id="bitlockerStatus" class="status"></div>
+        </div>
+
         <div id="manage-tab" class="tab-content">
             <h3>Mounted Images</h3>
             <div id="mountedList" class="file-list">
@@ -505,6 +646,8 @@
         const os = require('os');
         const execPromise = util.promisify(exec);
 
+        let selectedPartition = null;
+
         // Tab switching
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -515,6 +658,10 @@
 
                 this.classList.add('active');
                 document.getElementById(tabName + '-tab').classList.add('active');
+
+                if (tabName === 'vmdk') {
+                    loadPartitions();
+                }
             });
         });
 
@@ -566,15 +713,18 @@
         function selectImageFile() {
             const input = document.createElement('input');
             input.type = 'file';
-            input.accept = '.img';
+            const fileType = document.getElementById('mountFileType').value;
+            input.accept = fileType === 'iso' ? '.iso' : '.img';
 
             input.addEventListener('change', function() {
                 if (this.files.length > 0) {
                     const filePath = this.files[0].path;
                     document.getElementById('mountImagePath').value = filePath;
 
-                    // Check if encrypted
-                    checkIfEncrypted(filePath);
+                    // Check if encrypted (only for img/vmdk)
+                    if (fileType !== 'iso') {
+                        checkIfEncrypted(filePath);
+                    }
                 }
             });
 
@@ -590,6 +740,69 @@
             input.addEventListener('change', function() {
                 if (this.value) {
                     document.getElementById('mountPoint').value = this.value;
+                }
+            });
+
+            input.click();
+        }
+
+        function selectConvertSource() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.img';
+
+            input.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const filePath = this.files[0].path;
+                    document.getElementById('convertSourcePath').value = filePath;
+                    // Auto-suggest output path
+                    const baseName = path.basename(filePath, '.img');
+                    const dirName = path.dirname(filePath);
+                    document.getElementById('convertDestPath').value = path.join(dirName, baseName + '.vmdk');
+                }
+            });
+
+            input.click();
+        }
+
+        function selectVMDKOutput() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.nwsaveas = 'partition-link.vmdk';
+            input.accept = '.vmdk';
+
+            input.addEventListener('change', function() {
+                if (this.value) {
+                    document.getElementById('vmdkOutputPath').value = this.value;
+                }
+            });
+
+            input.click();
+        }
+
+        function selectBitlockerVHD() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.vhd,.vhdx';
+
+            input.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    document.getElementById('bitlockerVHDPath').value = this.files[0].path;
+                }
+            });
+
+            input.click();
+        }
+
+        function selectBitlockerMount() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.nwdirectory = true;
+            input.accept = '';
+
+            input.addEventListener('change', function() {
+                if (this.value) {
+                    document.getElementById('bitlockerMountPoint').value = this.value;
                 }
             });
 
@@ -615,6 +828,7 @@
         }
 
         async function createImage() {
+            const imageType = document.getElementById('imageType').value;
             const imageName = document.getElementById('imageName').value.trim();
             const savePath = document.getElementById('savePath').value.trim();
             const size = parseInt(document.getElementById('sizeInput').value);
@@ -643,65 +857,52 @@
                 return;
             }
 
-            const fullPath = path.join(savePath, imageName + '.img');
+            const extension = imageType === 'vmdk' ? '.vmdk' : '.img';
+            const fullPath = path.join(savePath, imageName + extension);
             const username = getUsername();
 
             showStatus('createStatus', 'Creating disk image...', 'info');
 
             try {
-                // Create the image file
-                if (allocationType === 'dynamic') {
-                    // Sparse file (dynamic allocation)
-                    await execPromise(`truncate -s ${size}G "${fullPath}"`);
+                if (imageType === 'vmdk') {
+                    // Create VMDK
+                    await execPromise(`qemu-img create -f vmdk "${fullPath}" ${size}G`);
                 } else {
-                    // Pre-allocated file (static allocation)
-                    await execPromise(`dd if=/dev/zero of="${fullPath}" bs=1G count=${size} status=none`);
+                    // Create IMG
+                    if (allocationType === 'dynamic') {
+                        await execPromise(`truncate -s ${size}G "${fullPath}"`);
+                    } else {
+                        await execPromise(`dd if=/dev/zero of="${fullPath}" bs=1G count=${size} status=none`);
+                    }
                 }
 
-                if (encrypt) {
+                if (encrypt && imageType === 'img') {
                     showStatus('createStatus', 'Encrypting with LUKS...', 'info');
 
-                    // Write password to temporary file
                     const tempPassFile = `/tmp/luks_pass_${Date.now()}`;
                     fs.writeFileSync(tempPassFile, password);
 
                     try {
-                        // Format with LUKS using password file
                         await execPromise(`cryptsetup luksFormat "${fullPath}" "${tempPassFile}"`);
-
-                        // Open the encrypted container
                         const mapperName = imageName.replace(/[^a-zA-Z0-9]/g, '_');
                         await execPromise(`cryptsetup open "${fullPath}" "${mapperName}" --key-file="${tempPassFile}"`);
-
-                        // Create filesystem
                         await execPromise(`mkfs.ext4 /dev/mapper/${mapperName}`);
-
-                        // Close the container
                         await execPromise(`cryptsetup close ${mapperName}`);
-
-                        // Change ownership and permissions for encrypted image
-                        await execPromise(`chown ${username}:${username} "${fullPath}"`);
-                        await execPromise(`chmod 777 "${fullPath}"`);
                     } finally {
-                        // Clean up temp password file
                         try { fs.unlinkSync(tempPassFile); } catch (e) {}
                     }
-                } else {
-                    // Create filesystem directly on non-encrypted image
+                } else if (!encrypt) {
                     const loopDevice = (await execPromise(`losetup -f`)).stdout.trim();
                     await execPromise(`losetup ${loopDevice} "${fullPath}"`);
                     await execPromise(`mkfs.ext4 ${loopDevice}`);
                     await execPromise(`losetup -d ${loopDevice}`);
-
-                    // Change ownership and permissions for non-encrypted image
-                    await execPromise(`chown ${username}:${username} "${fullPath}"`);
-                    await execPromise(`chmod 777 "${fullPath}"`);
                 }
 
-                showStatus('createStatus', `Successfully created ${encrypt ? 'encrypted' : ''} ${allocationType} disk image: ${fullPath}`, 'success');
+                // Change ownership and permissions
+                await execPromise(`chown ${username}:${username} "${fullPath}"`);
+                await execPromise(`chmod 666 "${fullPath}"`);
 
-                // Register file association
-                registerFileAssociation();
+                showStatus('createStatus', `Successfully created ${fullPath}`, 'success');
             } catch (error) {
                 showStatus('createStatus', 'Error: ' + error.message, 'error');
             }
@@ -718,17 +919,17 @@
         async function mountImage(useDefaultLocation) {
             const imagePath = document.getElementById('mountImagePath').value.trim();
             const password = document.getElementById('mountPassword').value;
+            const fileType = document.getElementById('mountFileType').value;
             let mountPoint;
 
             if (!imagePath) {
-                showStatus('mountStatus', 'Please select an image file', 'error');
+                showStatus('mountStatus', 'Please select a file', 'error');
                 return;
             }
 
             if (useDefaultLocation) {
-                // Use /run/media/private/ style mount point
                 const username = getUsername();
-                const imageName = path.basename(imagePath, '.img');
+                const imageName = path.basename(imagePath, path.extname(imagePath));
                 mountPoint = `/run/media/${username}/${imageName}`;
             } else {
                 mountPoint = document.getElementById('mountPoint').value.trim();
@@ -738,47 +939,202 @@
                 }
             }
 
-            showStatus('mountStatus', 'Mounting image...', 'info');
+            showStatus('mountStatus', 'Mounting...', 'info');
 
             try {
-                // Create mount point if it doesn't exist
                 await execPromise(`mkdir -p "${mountPoint}"`);
 
-                // Check if encrypted
-                let isEncrypted = false;
-                try {
-                    await execPromise(`cryptsetup isLuks "${imagePath}" 2>/dev/null`);
-                    isEncrypted = true;
-                } catch (e) {
-                    isEncrypted = false;
-                }
-
-                if (isEncrypted) {
-                    const mapperName = path.basename(imagePath, '.img').replace(/[^a-zA-Z0-9]/g, '_');
-
-                    // Write password to temporary file
-                    const tempPassFile = `/tmp/luks_pass_${Date.now()}`;
-                    fs.writeFileSync(tempPassFile, password);
-
-                    try {
-                        // Open encrypted container using password file
-                        await execPromise(`cryptsetup open "${imagePath}" "${mapperName}" --key-file="${tempPassFile}"`);
-
-                        // Mount the filesystem
-                        await execPromise(`mount /dev/mapper/${mapperName} "${mountPoint}"`);
-                    } finally {
-                        // Clean up temp password file
-                        try { fs.unlinkSync(tempPassFile); } catch (e) {}
-                    }
+                if (fileType === 'iso') {
+                    // Mount ISO
+                    await execPromise(`mount -o loop,ro "${imagePath}" "${mountPoint}"`);
                 } else {
-                    // Mount directly using loop device
-                    await execPromise(`mount -o loop "${imagePath}" "${mountPoint}"`);
+                    // Check if encrypted
+                    let isEncrypted = false;
+                    try {
+                        await execPromise(`cryptsetup isLuks "${imagePath}" 2>/dev/null`);
+                        isEncrypted = true;
+                    } catch (e) {
+                        isEncrypted = false;
+                    }
+
+                    if (isEncrypted) {
+                        const mapperName = path.basename(imagePath, path.extname(imagePath)).replace(/[^a-zA-Z0-9]/g, '_');
+                        const tempPassFile = `/tmp/luks_pass_${Date.now()}`;
+                        fs.writeFileSync(tempPassFile, password);
+
+                        try {
+                            await execPromise(`cryptsetup open "${imagePath}" "${mapperName}" --key-file="${tempPassFile}"`);
+                            await execPromise(`mount /dev/mapper/${mapperName} "${mountPoint}"`);
+                        } finally {
+                            try { fs.unlinkSync(tempPassFile); } catch (e) {}
+                        }
+                    } else {
+                        // Mount IMG directly  
+                        await execPromise(`mount -o loop "${imagePath}" "${mountPoint}"`);
+                    }
                 }
 
                 showStatus('mountStatus', `Successfully mounted to: ${mountPoint}`, 'success');
                 refreshMountList();
             } catch (error) {
                 showStatus('mountStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function convertToVMDK() {
+            const sourcePath = document.getElementById('convertSourcePath').value.trim();
+            const destPath = document.getElementById('convertDestPath').value.trim();
+
+            if (!sourcePath || !destPath) {
+                showStatus('convertStatus', 'Please select source and destination files', 'error');
+                return;
+            }
+
+            showStatus('convertStatus', 'Converting to VMDK...', 'info');
+
+            try {
+                await execPromise(`qemu-img convert -f raw -O vmdk "${sourcePath}" "${destPath}"`);
+
+                const username = getUsername();
+                await execPromise(`chown ${username}:${username} "${destPath}"`);
+                await execPromise(`chmod 666 "${destPath}"`);
+
+                showStatus('convertStatus', `Successfully converted to: ${destPath}`, 'success');
+            } catch (error) {
+                showStatus('convertStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function loadPartitions() {
+            const listEl = document.getElementById('partitionList');
+            listEl.innerHTML = '<p style="text-align: center; color: #777;">Loading partitions...</p>';
+
+            try {
+                const { stdout } = await execPromise('lsblk -nlo NAME,SIZE,TYPE,MOUNTPOINT | grep part');
+                const partitions = stdout.trim().split('\n');
+
+                let html = '';
+                for (const partition of partitions) {
+                    const parts = partition.trim().split(/\s+/);
+                    const name = parts[0];
+                    const size = parts[1];
+                    const mountPoint = parts[3] || 'Not mounted';
+
+                    html += `
+                        <div class="partition-item" onclick="selectPartition('/dev/${name}', '${size}')">
+                            <strong>/dev/${name}</strong> (${size})<br>
+                            <small>Mount: ${mountPoint}</small>
+                        </div>
+                    `;
+                }
+
+                listEl.innerHTML = html || '<p style="text-align: center; color: #777;">No partitions found</p>';
+            } catch (error) {
+                listEl.innerHTML = '<p style="text-align: center; color: #777;">Error loading partitions</p>';
+            }
+        }
+
+        function selectPartition(device, size) {
+            selectedPartition = device;
+            document.querySelectorAll('.partition-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.target.closest('.partition-item').classList.add('selected');
+        }
+
+        async function createPartitionVMDK() {
+            const outputPath = document.getElementById('vmdkOutputPath').value.trim();
+
+            if (!selectedPartition) {
+                showStatus('vmdkStatus', 'Please select a partition', 'error');
+                return;
+            }
+
+            if (!outputPath) {
+                showStatus('vmdkStatus', 'Please specify output VMDK path', 'error');
+                return;
+            }
+
+            showStatus('vmdkStatus', 'Creating partition VMDK link...', 'info');
+
+            try {
+                // Get partition size
+                const { stdout } = await execPromise(`blockdev --getsize64 ${selectedPartition}`);
+                const sizeBytes = parseInt(stdout.trim());
+
+                // Create VMDK descriptor file that links to physical partition
+                const vmdkContent = `# Disk DescriptorFile
+version=1
+CID=fffffffe
+parentCID=ffffffff
+createType="partitionedDevice"
+
+# Extent description
+RW ${Math.floor(sizeBytes / 512)} FLAT "${selectedPartition}" 0
+
+# The Disk Data Base
+#DDB
+
+ddb.virtualHWVersion = "4"
+ddb.geometry.cylinders = "${Math.floor(sizeBytes / (512 * 63 * 16))}"
+ddb.geometry.heads = "16"
+ddb.geometry.sectors = "63"
+ddb.adapterType = "ide"
+`;
+
+                fs.writeFileSync(outputPath, vmdkContent);
+
+                const username = getUsername();
+                await execPromise(`chown ${username}:${username} "${outputPath}"`);
+                await execPromise(`chmod 777 "${outputPath}"`);
+
+                showStatus('vmdkStatus', `Successfully created partition VMDK: ${outputPath}`, 'success');
+            } catch (error) {
+                showStatus('vmdkStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function mountBitlocker() {
+            const vhdPath = document.getElementById('bitlockerVHDPath').value.trim();
+            const password = document.getElementById('bitlockerPassword').value;
+            const mountPoint = document.getElementById('bitlockerMountPoint').value;
+
+            if (!vhdPath || !password || !mountPoint) {
+                showStatus('bitlockerStatus', 'Please fill all fields', 'error');
+                return;
+            }
+
+            showStatus('bitlockerStatus', 'Mounting BitLocker VHD...', 'info');
+
+            try {
+                // Create mount point
+                await execPromise(`mkdir -p "${mountPoint}"`);
+
+                // Attach VHD to loop device
+                const { stdout: loopOutput } = await execPromise(`losetup -f`);
+                const loopDevice = loopOutput.trim();
+                await execPromise(`losetup "${loopDevice}" "${vhdPath}"`);
+
+                // Use dislocker to decrypt
+                const dislockerDir = `/tmp/dislocker_${Date.now()}`;
+                await execPromise(`mkdir -p "${dislockerDir}"`);
+
+                const tempPassFile = `/tmp/bitlocker_pass_${Date.now()}`;
+                fs.writeFileSync(tempPassFile, password);
+
+                try {
+                    await execPromise(`dislocker -v -V "${loopDevice}" -u"${tempPassFile}" -- "${dislockerDir}"`);
+
+                    // Mount the decrypted file
+                    await execPromise(`mount -o loop "${dislockerDir}/dislocker-file" "${mountPoint}"`);
+
+                    showStatus('bitlockerStatus', `Successfully mounted to: ${mountPoint}`, 'success');
+                    refreshMountList();
+                } finally {
+                    try { fs.unlinkSync(tempPassFile); } catch (e) {}
+                }
+            } catch (error) {
+                showStatus('bitlockerStatus', 'Error: ' + error.message, 'error');
             }
         }
 
@@ -790,12 +1146,9 @@
                     await execPromise(`cryptsetup close ${mapperName}`);
                 }
 
-                // Try to remove the mount point if it's empty
                 try {
                     await execPromise(`rmdir "${mountPoint}"`);
-                } catch (e) {
-                    // Directory not empty or doesn't exist, ignore
-                }
+                } catch (e) {}
 
                 refreshMountList();
             } catch (error) {
@@ -807,7 +1160,7 @@
             const listEl = document.getElementById('mountedList');
 
             try {
-                const { stdout } = await execPromise('mount | grep -E "(/dev/mapper|loop)" || true');
+                const { stdout } = await execPromise('mount | grep -E "(/dev/mapper|loop|dislocker)" || true');
 
                 if (!stdout.trim()) {
                     listEl.innerHTML = '<p style="text-align: center; color: #777; padding: 15px; font-size: 13px;">No mounted images</p>';
@@ -844,35 +1197,6 @@
                 listEl.innerHTML = html || '<p style="text-align: center; color: #777; padding: 15px; font-size: 13px;">No mounted images</p>';
             } catch (error) {
                 console.error('Error refreshing mount list:', error);
-            }
-        }
-
-        function registerFileAssociation() {
-            // Get the app path
-            const appPath = process.execPath;
-            const desktopEntry = `[Desktop Entry]
-                Type=Application
-                Name=Elve Magic Encrypt
-                Exec=${appPath} %f
-                MimeType=application/x-raw-disk-image;
-                Icon=drive-harddisk
-                Categories=System;Utility;
-                `;
-
-            const desktopFilePath = path.join(os.homedir(), '.local/share/applications/elve-magic-encrypt.desktop');
-
-            try {
-                // Ensure directory exists
-                const dir = path.dirname(desktopFilePath);
-                if (!fs.existsSync(dir)) {
-                    fs.mkdirSync(dir, { recursive: true });
-                }
-
-                fs.writeFileSync(desktopFilePath, desktopEntry);
-                execPromise(`chmod +x "${desktopFilePath}"`);
-                execPromise(`update-desktop-database ~/.local/share/applications/ 2>/dev/null || true`);
-            } catch (e) {
-                console.log('Could not register file association:', e);
             }
         }
 

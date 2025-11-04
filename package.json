@@ -1,13 +1,14 @@
 {
-  "name": "luks-image-manager",
+  "name": "elve-magic-encrypt",
   "version": "1.0.0",
   "main": "index.html",
   "window": {
-    "title": "LUKS Image Manager",
+    "title": "Elve Magic Encrypt",
     "width": 900,
-    "height": 700,
-    "min_width": 800,
-    "min_height": 600
+    "height": 920,
+    "position": "center",
+    "resizable": "true",
+    "icon":"magic_encrypt.png"
   },
   "dependencies": {
     "nw": "^0.105.0"
