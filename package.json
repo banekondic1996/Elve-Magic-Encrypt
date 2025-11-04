@@ -1,0 +1,18 @@
+{
+  "name": "luks-image-manager",
+  "version": "1.0.0",
+  "main": "index.html",
+  "window": {
+    "title": "LUKS Image Manager",
+    "width": 900,
+    "height": 700,
+    "min_width": 800,
+    "min_height": 600
+  },
+  "dependencies": {
+    "nw": "^0.105.0"
+  },
+  "scripts":{
+  "start-nw" : "nw ."
+  }
+}

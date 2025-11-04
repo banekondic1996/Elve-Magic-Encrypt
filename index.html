@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elve Magic Encrypt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 13px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f7f7f7;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #ececec;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 13px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .slider-container {
+            margin: 12px 0;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 5px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            border: none;
+        }
+
+        .size-display {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 600;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(17, 153, 142, 0.3);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        .radio-option span {
+            font-size: 13px;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+            display: none;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        .file-list {
+            max-height: 350px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .file-item {
+            padding: 12px;
+            background: #f7f7f7;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .file-item:hover {
+            background: #ececec;
+            transform: translateX(5px);
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .file-details {
+            font-size: 11px;
+            color: #777;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 7px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-mount {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-unmount {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-mount:hover, .btn-unmount:hover {
+            transform: scale(1.05);
+        }
+
+        .help-text {
+            font-size: 11px;
+            color: #777;
+            margin-top: 4px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .input-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .mount-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .mount-options .btn {
+            flex: 1;
+        }
+
+        #customMountFields {
+            display: none;
+            margin-top: 12px;
+        }
+
+        h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Elve Magic Encrypt</h1>
+            <p>Create, mount, and manage encrypted disk images</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="create">Create Image</div>
+            <div class="tab" data-tab="mount">Mount Image</div>
+            <div class="tab" data-tab="manage">Manage</div>
+        </div>
+
+        <div id="create-tab" class="tab-content active">
+            <div class="form-group">
+                <label>Image Name</label>
+                <input type="text" id="imageName" placeholder="my-secure-disk" />
+            </div>
+
+            <div class="form-group">
+                <label>Save Location</label>
+                <div class="input-row">
+                    <input type="text" id="savePath" placeholder="/home/user/images" readonly />
+                    <button class="btn btn-secondary" onclick="selectSavePath()" style="width: auto; padding: 10px 16px;">Browse</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Allocation Type</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="allocationType" value="dynamic" checked />
+                        <span>Dynamic</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="allocationType" value="static" />
+                        <span>Static</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Image Size (GB)</label>
+                <div class="slider-container">
+                    <input type="range" id="sizeSlider" min="1" max="100" value="10" />
+                    <div class="size-display"><span id="sizeValue">10</span> GB</div>
+                </div>
+                <input type="number" id="sizeInput" min="1" max="1000" value="10" placeholder="Enter size in GB" />
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="encryptCheck" checked />
+                <label for="encryptCheck">Encrypt with LUKS</label>
+            </div>
+
+            <div id="passwordFields">
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter strong password" />
+                </div>
+
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Re-enter password" />
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="createImage()">Create Disk Image</button>
+
+            <div id="createStatus" class="status"></div>
+        </div>
+
+        <div id="mount-tab" class="tab-content">
+            <div class="form-group">
+                <label>Select Image File</label>
+                <div class="input-row">
+                    <input type="text" id="mountImagePath" placeholder="Select .img file" readonly />
+                    <button class="btn btn-secondary" onclick="selectImageFile()" style="width: auto; padding: 10px 16px;">Browse</button>
+                </div>
+            </div>
+
+            <div id="mountPasswordField" class="form-group" style="display: none;">
+                <label>LUKS Password</label>
+                <input type="password" id="mountPassword" placeholder="Enter decryption password" />
+            </div>
+
+            <div class="mount-options">
+                <button class="btn btn-success" onclick="mountImageDefault()">Mount to Media</button>
+                <button class="btn btn-secondary" onclick="toggleCustomMount()">Custom Location</button>
+            </div>
+
+            <div id="customMountFields">
+                <div class="form-group">
+                    <label>Mount Point</label>
+                    <div class="input-row">
+                        <input type="text" id="mountPoint" placeholder="/mnt/my-disk" />
+                        <button class="btn btn-secondary" onclick="selectMountPoint()" style="width: auto; padding: 10px 16px;">Browse</button>
+                    </div>
+                </div>
+                <button class="btn btn-success" onclick="mountImageCustom()">Mount to Custom Location</button>
+            </div>
+
+            <div id="mountStatus" class="status"></div>
+        </div>
+
+        <div id="manage-tab" class="tab-content">
+            <h3>Mounted Images</h3>
+            <div id="mountedList" class="file-list">
+                <p style="text-align: center; color: #777; padding: 15px; font-size: 13px;">No mounted images</p>
+            </div>
+
+            <button class="btn btn-secondary" onclick="refreshMountList()">Refresh List</button>
+        </div>
+    </div>
+
+    <script>
+        const fs = require('fs');
+        const path = require('path');
+        const { exec } = require('child_process');
+        const util = require('util');
+        const os = require('os');
+        const execPromise = util.promisify(exec);
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                this.classList.add('active');
+                document.getElementById(tabName + '-tab').classList.add('active');
+            });
+        });
+
+        // Slider sync
+        const slider = document.getElementById('sizeSlider');
+        const sizeInput = document.getElementById('sizeInput');
+        const sizeValue = document.getElementById('sizeValue');
+
+        slider.addEventListener('input', function() {
+            sizeValue.textContent = this.value;
+            sizeInput.value = this.value;
+        });
+
+        sizeInput.addEventListener('input', function() {
+            let val = parseInt(this.value) || 1;
+            if (val > 100) slider.max = val;
+            if (val >= 1 && val <= slider.max) {
+                slider.value = val;
+                sizeValue.textContent = val;
+            }
+        });
+
+        // Encryption checkbox toggle
+        document.getElementById('encryptCheck').addEventListener('change', function() {
+            document.getElementById('passwordFields').style.display = this.checked ? 'block' : 'none';
+        });
+
+        function showStatus(elementId, message, type) {
+            const statusEl = document.getElementById(elementId);
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type;
+        }
+
+        function selectSavePath() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.nwdirectory = true;
+            input.accept = '';
+
+            input.addEventListener('change', function() {
+                if (this.value) {
+                    document.getElementById('savePath').value = this.value;
+                }
+            });
+
+            input.click();
+        }
+
+        function selectImageFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.img';
+
+            input.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const filePath = this.files[0].path;
+                    document.getElementById('mountImagePath').value = filePath;
+
+                    // Check if encrypted
+                    checkIfEncrypted(filePath);
+                }
+            });
+
+            input.click();
+        }
+
+        function selectMountPoint() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.nwdirectory = true;
+            input.accept = '';
+
+            input.addEventListener('change', function() {
+                if (this.value) {
+                    document.getElementById('mountPoint').value = this.value;
+                }
+            });
+
+            input.click();
+        }
+
+        function toggleCustomMount() {
+            const customFields = document.getElementById('customMountFields');
+            customFields.style.display = customFields.style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function checkIfEncrypted(imagePath) {
+            try {
+                await execPromise(`cryptsetup isLuks "${imagePath}" 2>/dev/null`);
+                document.getElementById('mountPasswordField').style.display = 'block';
+            } catch (error) {
+                document.getElementById('mountPasswordField').style.display = 'none';
+            }
+        }
+
+        function getUsername() {
+            return os.userInfo().username;
+        }
+
+        async function createImage() {
+            const imageName = document.getElementById('imageName').value.trim();
+            const savePath = document.getElementById('savePath').value.trim();
+            const size = parseInt(document.getElementById('sizeInput').value);
+            const encrypt = document.getElementById('encryptCheck').checked;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const allocationType = document.querySelector('input[name="allocationType"]:checked').value;
+
+            if (!imageName) {
+                showStatus('createStatus', 'Please enter an image name', 'error');
+                return;
+            }
+
+            if (!savePath) {
+                showStatus('createStatus', 'Please select a save location', 'error');
+                return;
+            }
+
+            if (encrypt && password !== confirmPassword) {
+                showStatus('createStatus', 'Passwords do not match', 'error');
+                return;
+            }
+
+            if (encrypt && password.length < 8) {
+                showStatus('createStatus', 'Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            const fullPath = path.join(savePath, imageName + '.img');
+            const username = getUsername();
+
+            showStatus('createStatus', 'Creating disk image...', 'info');
+
+            try {
+                // Create the image file
+                if (allocationType === 'dynamic') {
+                    // Sparse file (dynamic allocation)
+                    await execPromise(`truncate -s ${size}G "${fullPath}"`);
+                } else {
+                    // Pre-allocated file (static allocation)
+                    await execPromise(`dd if=/dev/zero of="${fullPath}" bs=1G count=${size} status=none`);
+                }
+
+                if (encrypt) {
+                    showStatus('createStatus', 'Encrypting with LUKS...', 'info');
+
+                    // Write password to temporary file
+                    const tempPassFile = `/tmp/luks_pass_${Date.now()}`;
+                    fs.writeFileSync(tempPassFile, password);
+
+                    try {
+                        // Format with LUKS using password file
+                        await execPromise(`cryptsetup luksFormat "${fullPath}" "${tempPassFile}"`);
+
+                        // Open the encrypted container
+                        const mapperName = imageName.replace(/[^a-zA-Z0-9]/g, '_');
+                        await execPromise(`cryptsetup open "${fullPath}" "${mapperName}" --key-file="${tempPassFile}"`);
+
+                        // Create filesystem
+                        await execPromise(`mkfs.ext4 /dev/mapper/${mapperName}`);
+
+                        // Close the container
+                        await execPromise(`cryptsetup close ${mapperName}`);
+
+                        // Change ownership and permissions for encrypted image
+                        await execPromise(`chown ${username}:${username} "${fullPath}"`);
+                        await execPromise(`chmod 777 "${fullPath}"`);
+                    } finally {
+                        // Clean up temp password file
+                        try { fs.unlinkSync(tempPassFile); } catch (e) {}
+                    }
+                } else {
+                    // Create filesystem directly on non-encrypted image
+                    const loopDevice = (await execPromise(`losetup -f`)).stdout.trim();
+                    await execPromise(`losetup ${loopDevice} "${fullPath}"`);
+                    await execPromise(`mkfs.ext4 ${loopDevice}`);
+                    await execPromise(`losetup -d ${loopDevice}`);
+
+                    // Change ownership and permissions for non-encrypted image
+                    await execPromise(`chown ${username}:${username} "${fullPath}"`);
+                    await execPromise(`chmod 777 "${fullPath}"`);
+                }
+
+                showStatus('createStatus', `Successfully created ${encrypt ? 'encrypted' : ''} ${allocationType} disk image: ${fullPath}`, 'success');
+
+                // Register file association
+                registerFileAssociation();
+            } catch (error) {
+                showStatus('createStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function mountImageDefault() {
+            await mountImage(true);
+        }
+
+        async function mountImageCustom() {
+            await mountImage(false);
+        }
+
+        async function mountImage(useDefaultLocation) {
+            const imagePath = document.getElementById('mountImagePath').value.trim();
+            const password = document.getElementById('mountPassword').value;
+            let mountPoint;
+
+            if (!imagePath) {
+                showStatus('mountStatus', 'Please select an image file', 'error');
+                return;
+            }
+
+            if (useDefaultLocation) {
+                // Use /run/media/private/ style mount point
+                const username = getUsername();
+                const imageName = path.basename(imagePath, '.img');
+                mountPoint = `/run/media/${username}/${imageName}`;
+            } else {
+                mountPoint = document.getElementById('mountPoint').value.trim();
+                if (!mountPoint) {
+                    showStatus('mountStatus', 'Please specify a mount point', 'error');
+                    return;
+                }
+            }
+
+            showStatus('mountStatus', 'Mounting image...', 'info');
+
+            try {
+                // Create mount point if it doesn't exist
+                await execPromise(`mkdir -p "${mountPoint}"`);
+
+                // Check if encrypted
+                let isEncrypted = false;
+                try {
+                    await execPromise(`cryptsetup isLuks "${imagePath}" 2>/dev/null`);
+                    isEncrypted = true;
+                } catch (e) {
+                    isEncrypted = false;
+                }
+
+                if (isEncrypted) {
+                    const mapperName = path.basename(imagePath, '.img').replace(/[^a-zA-Z0-9]/g, '_');
+
+                    // Write password to temporary file
+                    const tempPassFile = `/tmp/luks_pass_${Date.now()}`;
+                    fs.writeFileSync(tempPassFile, password);
+
+                    try {
+                        // Open encrypted container using password file
+                        await execPromise(`cryptsetup open "${imagePath}" "${mapperName}" --key-file="${tempPassFile}"`);
+
+                        // Mount the filesystem
+                        await execPromise(`mount /dev/mapper/${mapperName} "${mountPoint}"`);
+                    } finally {
+                        // Clean up temp password file
+                        try { fs.unlinkSync(tempPassFile); } catch (e) {}
+                    }
+                } else {
+                    // Mount directly using loop device
+                    await execPromise(`mount -o loop "${imagePath}" "${mountPoint}"`);
+                }
+
+                showStatus('mountStatus', `Successfully mounted to: ${mountPoint}`, 'success');
+                refreshMountList();
+            } catch (error) {
+                showStatus('mountStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function unmountImage(mountPoint, mapperName = null) {
+            try {
+                await execPromise(`umount "${mountPoint}"`);
+
+                if (mapperName) {
+                    await execPromise(`cryptsetup close ${mapperName}`);
+                }
+
+                // Try to remove the mount point if it's empty
+                try {
+                    await execPromise(`rmdir "${mountPoint}"`);
+                } catch (e) {
+                    // Directory not empty or doesn't exist, ignore
+                }
+
+                refreshMountList();
+            } catch (error) {
+                alert('Error unmounting: ' + error.message);
+            }
+        }
+
+        async function refreshMountList() {
+            const listEl = document.getElementById('mountedList');
+
+            try {
+                const { stdout } = await execPromise('mount | grep -E "(/dev/mapper|loop)" || true');
+
+                if (!stdout.trim()) {
+                    listEl.innerHTML = '<p style="text-align: center; color: #777; padding: 15px; font-size: 13px;">No mounted images</p>';
+                    return;
+                }
+
+                const mounts = stdout.trim().split('\n');
+                let html = '';
+
+                for (const mount of mounts) {
+                    const parts = mount.split(' on ');
+                    if (parts.length < 2) continue;
+
+                    const device = parts[0];
+                    const mountInfo = parts[1].split(' type ');
+                    const mountPoint = mountInfo[0];
+
+                    const isMapper = device.includes('/dev/mapper/');
+                    const mapperName = isMapper ? device.split('/dev/mapper/')[1] : null;
+
+                    html += `
+                        <div class="file-item">
+                            <div class="file-info">
+                                <div class="file-name">${device}</div>
+                                <div class="file-details">Mounted at: ${mountPoint}</div>
+                            </div>
+                            <div class="file-actions">
+                                <button class="btn-small btn-unmount" onclick='unmountImage("${mountPoint}", ${mapperName ? '"' + mapperName + '"' : 'null'})'>Unmount</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                listEl.innerHTML = html || '<p style="text-align: center; color: #777; padding: 15px; font-size: 13px;">No mounted images</p>';
+            } catch (error) {
+                console.error('Error refreshing mount list:', error);
+            }
+        }
+
+        function registerFileAssociation() {
+            // Get the app path
+            const appPath = process.execPath;
+            const desktopEntry = `[Desktop Entry]
+                Type=Application
+                Name=Elve Magic Encrypt
+                Exec=${appPath} %f
+                MimeType=application/x-raw-disk-image;
+                Icon=drive-harddisk
+                Categories=System;Utility;
+                `;
+
+            const desktopFilePath = path.join(os.homedir(), '.local/share/applications/elve-magic-encrypt.desktop');
+
+            try {
+                // Ensure directory exists
+                const dir = path.dirname(desktopFilePath);
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, { recursive: true });
+                }
+
+                fs.writeFileSync(desktopFilePath, desktopEntry);
+                execPromise(`chmod +x "${desktopFilePath}"`);
+                execPromise(`update-desktop-database ~/.local/share/applications/ 2>/dev/null || true`);
+            } catch (e) {
+                console.log('Could not register file association:', e);
+            }
+        }
+
+        // Initialize
+        refreshMountList();
+        setInterval(refreshMountList, 5000);
+    </script>
+</body>
+</html>
