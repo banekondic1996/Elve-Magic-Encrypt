@@ -4,7 +4,9 @@ I got tired of creating .img images using terminal, especially dynamic ones.<br>
 Then i use ZuluCrypt to mount the images, but ZuluCrypt won't mount images without password. <br>
 Well guess what? This simple web app can. <br>
 Option to create link to physical drive was created, <br> 
-cause i needed that many times for virtual machine + it will be usful for my DE<br><br>
+cause i needed that many times for virtual machine + it will be usful for my DE.<br>
+Option to mount .vdi and .vmdk will be added, and also bitlocker encrypted .vhd's (it's already there, but disabled)
+<br><br>
 **Dependencies to install:** <br>
 <pre>
   cryptsetup
