@@ -11,6 +11,12 @@ Option to mount .vdi and .vmdk will be added, and also bitlocker encrypted .vhd'
 <pre>
   cryptsetup
 </pre>
+**To fix or add:** <br>
+<pre>
+  -Encrypt image after creation
+  -Convert to .img to .vhd and in reverse
+  -Fix permission issues after creating image
+</pre>
 **Discord server for requests/reporting bugs** - <a href="https://discord.gg/6PP5uqha">Discord</a> <br><br>
 **Download** - <a href="https://github.com/banekondic1996/Elve-Magic-Encrypt/releases/tag/1.0">Link</a> <br><br>
 
