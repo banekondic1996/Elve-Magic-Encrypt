@@ -1123,7 +1123,8 @@ ddb.adapterType = "ide"
                 fs.writeFileSync(tempPassFile, password);
 
                 try {
-                    await execPromise(`dislocker -v -V "${loopDevice}" -u"${tempPassFile}" -- "${dislockerDir}"`);
+                
+                    await execPromise(`sudo dislocker -V "${loopDevice}" -u"${tempPassFile}" -- "${dislockerDir}"`);
 
                     // Mount the decrypted file
                     await execPromise(`mount -o loop "${dislockerDir}/dislocker-file" "${mountPoint}"`);
